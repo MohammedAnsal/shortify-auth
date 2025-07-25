@@ -12,4 +12,11 @@ authRouter.get(
   authController.verifyEmail.bind(authController)
 );
 
+authRouter.post(
+  "/google-signIn",
+  authController.googleSign.bind(authController)
+);
+
+authRouter.post("/logout", authController.logout.bind(authController));
+
 export default authRouter;

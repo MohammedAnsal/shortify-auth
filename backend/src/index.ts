@@ -6,6 +6,8 @@ import dbConnect from "./config/db.connection";
 import { urlController } from "./controllers/implementations/urlShort.controller";
 import { authMiddleware } from "./middlewares/auth.middleware";
 import { authorization } from "./middlewares/authrization.middleware";
+import cookieParser from "cookie-parser";
+import cors from "cors";
 import urlRoute from "./routers/urlShort.routers";
 
 dotenv.config();
@@ -16,6 +18,15 @@ const app = express();
 app.use(express.json());
 
 app.use(express.urlencoded({ extended: true }));
+
+app.use(cookieParser());
+
+app.use(
+  cors({
+    origin: process.env.CLIENT_URL || "http://localhost:5002",
+    credentials: true,
+  })
+);
 
 app.use("/auth", authRouter);
 app.use("/url", urlRoute);

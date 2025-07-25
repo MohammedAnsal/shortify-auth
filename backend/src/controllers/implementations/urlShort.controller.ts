@@ -17,7 +17,9 @@ class UrlController implements IUrlController {
 
   async shortUrl(req: AuthRequest, res: Response): Promise<any> {
     try {
-      const parsed = shortenUrlSchema.parse(req.body);
+      const { originalUrl } = req.body;
+      // const parsed = shortenUrlSchema.parse(String(originalUrl));
+      // console.log(parsed)
       const userId = req.user?.id;
 
       if (!userId) {
@@ -27,16 +29,17 @@ class UrlController implements IUrlController {
       }
 
       const result = await this.urlService.shortUrl({
-        url: parsed.originalUrl,
+        url: originalUrl,
         userId,
       });
 
-      console.log(result)
+      const baseUrl = process.env.BASE_URL || "http://localhost:7002/";
+      const fullShortUrl = `${baseUrl}${result.shortUrl}`;
 
       return res.status(HttpStatus.OK).json({
         status: true,
         message: "Short URL created successfully",
-        shortUrl: result.shortUrl,
+        shortUrl: fullShortUrl,
       });
     } catch (error: any) {
       return res
@@ -64,11 +67,11 @@ class UrlController implements IUrlController {
           .json({ message: responseMessage.NOT_FOUND });
       }
 
-      if (urlDoc.visitCount >= 3) {
-        return res
-          .status(HttpStatus.FORBIDDEN)
-          .json({ message: responseMessage.URL_LIMIT_REACHED });
-      }
+      // if (urlDoc.visitCount >= 3) {
+      //   return res
+      //     .status(HttpStatus.FORBIDDEN)
+      //     .json({ message: responseMessage.URL_LIMIT_REACHED });
+      // }
 
       await this.urlService.incrementVisitCount(shortUrl);
 

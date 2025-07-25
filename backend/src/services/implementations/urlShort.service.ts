@@ -18,12 +18,7 @@ class UrlService implements IUrlService {
     try {
       const { url, userId } = data;
 
-      console.log(url);
-      console.log(userId);
-
       const shortUrl = shortid.generate();
-
-      console.log(shortUrl, "shored");
 
       const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
 

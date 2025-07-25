@@ -5,5 +5,5 @@ export interface IAuthService {
   signUp(data: signUpDTO): Promise<AuthResponse>;
   signIn(data: signInDTO): Promise<SignInResponse>;
   verifyEmail(email: string, token: string): Promise<SignInResponse>;
-  logout(): Promise<void>;
+  googleSign(token: string): Promise<SignInResponse>;
 }

@@ -6,7 +6,7 @@ import { IUserRepository } from "../../repositories/interfaces/user.Irepository"
 import { userRepository } from "../../repositories/implementations/user.repository";
 import { AppError } from "../../utils/custom.error";
 import { HttpStatus, responseMessage } from "../../enums/http.status";
-import { hashPassword } from "../../utils/password.hash";
+import { hashPassword, RandomPassword } from "../../utils/password.hash";
 import { IUser } from "../../models/user.model";
 import {
   generateAccessToken,
@@ -16,6 +16,9 @@ import {
 } from "../../utils/jwt.utils";
 import bcrypt from "bcryptjs";
 import { sendVerificationEmail } from "../../utils/email.utils";
+import { OAuth2Client } from "google-auth-library";
+
+const clinet = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 @Service()
 class AuthService implements IAuthService {
@@ -106,7 +109,7 @@ class AuthService implements IAuthService {
         status: true,
         message: "Sign in successfully completed",
         email: existingUser.email,
-        token: accessToken,
+        accessToken,
         refreshToken,
       };
     } catch (error) {
@@ -158,7 +161,7 @@ class AuthService implements IAuthService {
         status: true,
         message: "Email verified successfully",
         email: existingUser.email,
-        token: accessToken,
+        accessToken,
         refreshToken,
       };
     } catch (error) {
@@ -175,9 +178,77 @@ class AuthService implements IAuthService {
     }
   }
 
-  async logout(): Promise<void> {
+  async googleSign(token: string): Promise<SignInResponse> {
     try {
-    } catch (error) {}
+      let user;
+
+      const ticket = clinet.verifyIdToken({
+        idToken: token,
+        audience: process.env.GOOGLE_CLIENT_ID,
+      });
+
+      const payload = (await ticket).getPayload();
+
+      if (!payload) {
+        throw new AppError(HttpStatus.BAD_REQUEST, "Invalid token");
+      }
+
+      const { name, email } = payload;
+
+      if (!email) {
+        throw new AppError(
+          HttpStatus.BAD_REQUEST,
+          "Google account does not have an email"
+        );
+      }
+
+      user = await this.userRepository.findByEmail(email);
+
+      if (user && user.is_verified === false) {
+        throw new AppError(
+          HttpStatus.FORBIDDEN,
+          "User account is not verified"
+        );
+      }
+
+      if (!user) {
+        const password = await RandomPassword();
+
+        user = await this.userRepository.create({
+          fullName: name,
+          email,
+          password,
+          is_verified: true,
+        } as IUser);
+      }
+
+      const accessToken = generateAccessToken({
+        id: user._id,
+      });
+
+      const refreshToken = generateRefreashToken({
+        id: user._id,
+      });
+
+      return {
+        status: true,
+        message: "Sign in successfully completed",
+        email,
+        accessToken,
+        refreshToken,
+      };
+    } catch (error) {
+      if (error instanceof AppError) {
+        throw error;
+      }
+
+      console.error("Google SignIn Error:", error);
+
+      throw new AppError(
+        HttpStatus.INTERNAL_SERVER_ERROR,
+        responseMessage.ERROR_MESSAGE
+      );
+    }
   }
 }
 

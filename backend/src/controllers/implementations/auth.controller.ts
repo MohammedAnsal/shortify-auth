@@ -10,6 +10,7 @@ import { HttpStatus, responseMessage } from "../../enums/http.status";
 import { AppError } from "../../utils/custom.error";
 import { ZodError } from "zod";
 import { authService } from "../../services/implementations/auth.service";
+import { setCookie } from "../../utils/cookie";
 
 @Service()
 class AuthController implements IAuthController {
@@ -51,8 +52,15 @@ class AuthController implements IAuthController {
   async signIn(req: Request, res: Response): Promise<any> {
     try {
       const parsedData = signInSchema.parse(req.body);
+      if (!parsedData) {
+        return res
+          .status(HttpStatus.BAD_REQUEST)
+          .json({ success: false, message: "Invalid credentials" });
+      }
 
       const result = await this.authService.signIn(parsedData);
+
+      setCookie(res, "refresh_token", String(result.refreshToken));
 
       return res.status(HttpStatus.OK).json(result);
     } catch (error: any) {
@@ -114,9 +122,43 @@ class AuthController implements IAuthController {
     }
   }
 
+  async googleSign(req: Request, res: Response): Promise<any> {
+    try {
+      const { token } = req.body;
+
+      const { email, accessToken, refreshToken } =
+        await this.authService.googleSign(token);
+
+      setCookie(res, "refresh_token", String(refreshToken));
+
+      return res.status(HttpStatus.OK).json({
+        email,
+        accessToken,
+        success: true,
+      });
+    } catch (error) {}
+  }
+
   async logout(req: Request, res: Response): Promise<any> {
     try {
-    } catch (error) {}
+      const refreshToken = req.cookies.refresh_token;
+
+      if (!refreshToken) {
+        return res
+          .status(HttpStatus.BAD_REQUEST)
+          .json({ message: "No token provided" });
+      }
+
+      res.clearCookie("refresh_token");
+
+      return res
+        .status(HttpStatus.OK)
+        .json({ message: "Logged out successfully" });
+    } catch (error) {
+      return res
+        .status(HttpStatus.INTERNAL_SERVER_ERROR)
+        .json({ message: "Server error" });
+    }
   }
 }
 

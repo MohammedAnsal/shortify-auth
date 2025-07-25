@@ -1,10 +1,25 @@
-import { StrictMode } from 'react'
-import { createRoot } from 'react-dom/client'
-import './index.css'
-import App from './App.tsx'
+import { StrictMode } from "react";
+import { createRoot } from "react-dom/client";
+import "./index.css";
+import { RouterProvider } from "react-router-dom";
+import MainRouter from "./routers/mainRouter";
+import { Provider } from "react-redux";
+import store from "./redux/store/store";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { GoogleOAuthProvider } from "@react-oauth/google";
 
-createRoot(document.getElementById('root')!).render(
+const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID as string;
+
+const queryClient = new QueryClient();
+
+createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    <App />
-  </StrictMode>,
-)
+    <Provider store={store}>
+      <QueryClientProvider client={queryClient}>
+        <GoogleOAuthProvider clientId={googleClientId}>
+          <RouterProvider router={MainRouter} />
+        </GoogleOAuthProvider>
+      </QueryClientProvider>
+    </Provider>
+  </StrictMode>
+);
