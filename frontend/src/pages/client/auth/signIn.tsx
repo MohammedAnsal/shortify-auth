@@ -11,7 +11,7 @@ import { signIn } from "../../../services/api/auth";
 import { useDispatch } from "react-redux";
 import type { AxiosError } from "axios";
 import { loginSuccess } from "../../../redux/slice/userSlice";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { GoogleLogin } from "@react-oauth/google";
 import { useGoogle } from "../../../hooks/useGoogle";
 
@@ -261,6 +261,28 @@ export const SignIn = () => {
             theme="filled_black"
             width={50}
           />
+        </div>
+
+        {/* "New here? Sign Up" section */}
+        <div style={{ marginTop: "1.5rem" }}>
+          <span style={{ color: "#555", fontWeight: 500 }}>
+            New here?{" "}
+            <Link
+              to="/auth/signup"
+              style={{
+                background: "linear-gradient(90deg, #3b82f6 0%, #06beb6 100%)",
+                WebkitBackgroundClip: "text",
+                WebkitTextFillColor: "transparent",
+                fontWeight: 700,
+                textDecoration: "underline",
+                cursor: "pointer",
+                transition: "opacity 0.2s",
+                opacity: 0.9,
+              }}
+            >
+              Sign Up
+            </Link>
+          </span>
         </div>
       </motion.div>
       {/* Responsive tweaks */}

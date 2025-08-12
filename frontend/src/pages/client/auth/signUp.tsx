@@ -5,16 +5,16 @@ import {
   signUpSchema,
   type FormValues,
 } from "../../../utils/validations/signUp";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { toast } from "sonner";
 import { GoogleLogin } from "@react-oauth/google";
 import { useGoogle } from "../../../hooks/useGoogle";
 import { signUp } from "../../../services/api/auth";
 import type { AxiosError } from "axios";
+import { Link } from "react-router-dom";
 
 export const SignUp = () => {
   const { handleGoogleSuccess, handleGoogleError } = useGoogle();
-  const [loading, setLoading] = useState(false);
 
   const {
     register,
@@ -31,10 +31,8 @@ export const SignUp = () => {
   }, [errors]);
 
   const onSubmit = async (data: FormValues) => {
-    setLoading(false);
     try {
       const response = await signUp(data);
-      console.log(response);
 
       if (response.data.success) {
         toast.success(response.data.message);
@@ -47,8 +45,6 @@ export const SignUp = () => {
       toast.error(
         err.response?.data?.message || err.message || "Sign up failed"
       );
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -256,6 +252,28 @@ export const SignUp = () => {
             theme="filled_black"
             width={50}
           />
+        </div>
+
+        {/* "Already have an account? Sign In" section */}
+        <div style={{ marginTop: "1.5rem" }}>
+          <span style={{ color: "#555", fontWeight: 500 }}>
+            Already have an account?{" "}
+            <Link
+              to="/auth/signin"
+              style={{
+                background: "linear-gradient(90deg, #3b82f6 0%, #06beb6 100%)",
+                WebkitBackgroundClip: "text",
+                WebkitTextFillColor: "transparent",
+                fontWeight: 700,
+                textDecoration: "underline",
+                cursor: "pointer",
+                transition: "opacity 0.2s",
+                opacity: 0.9,
+              }}
+            >
+              Sign In
+            </Link>
+          </span>
         </div>
       </motion.div>
       {/* Responsive tweaks */}
