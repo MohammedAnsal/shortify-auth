@@ -18,8 +18,25 @@ class UrlService implements IUrlService {
     try {
       const { url, userId } = data;
 
-      const shortUrl = shortid.generate();
+      // Check if the same original URL already exists for this user
+      const existingUrl = await this.urlRepository.findByOriginalUrlAndUserId(
+        userId,
+        url
+      );
 
+      if (existingUrl) {
+        // Return the existing short URL instead of creating a new one
+        const baseUrl = "https://shortify-auth.vercel.app/";
+        const fullShortUrl = `${baseUrl}${existingUrl.shortUrl}`;
+
+        return {
+          status: true,
+          message: "URL already shortened! Here's your existing short URL.",
+          shortUrl: fullShortUrl,
+        };
+      }
+
+      const shortUrl = shortid.generate();
       const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
 
       const created = await this.urlRepository.shortUrl({
@@ -37,10 +54,13 @@ class UrlService implements IUrlService {
         };
       }
 
+      const baseUrl = "https://shortify-auth.vercel.app/";
+      const fullShortUrl = `${baseUrl}${shortUrl}`;
+
       return {
         status: true,
         message: responseMessage.SUCCESS_MESSAGE,
-        shortUrl: shortUrl,
+        shortUrl: fullShortUrl,
       };
     } catch (error: any) {
       return {
@@ -78,6 +98,29 @@ class UrlService implements IUrlService {
         error
       );
       return null;
+    }
+  }
+
+  async getUserUrls(userId: string, page: number = 1, limit: number = 5) {
+    try {
+      const result = await this.urlRepository.findByUserId(userId, page, limit);
+      return {
+        status: true,
+        message: "User URLs fetched successfully",
+        urls: result.urls,
+        total: result.total,
+        totalPages: result.totalPages,
+        currentPage: result.currentPage,
+      };
+    } catch (error: any) {
+      return {
+        status: false,
+        message: error.message || "Failed to fetch user URLs",
+        urls: [],
+        total: 0,
+        totalPages: 0,
+        currentPage: 1,
+      };
     }
   }
 }

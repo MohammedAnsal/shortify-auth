@@ -5,4 +5,18 @@ export interface IUrlRepository {
   shortUrl(data: ICreateShortUrlDTO): Promise<IUrl | null>;
   findByShortUrl(shortUrl: string): Promise<IUrl | null>;
   incrementVisitCount(shortUrl: string): Promise<any>;
+  findByUserId(
+    userId: string,
+    page?: number,
+    limit?: number
+  ): Promise<{
+    urls: any[];
+    total: number;
+    totalPages: number;
+    currentPage: number;
+  }>;
+  findByOriginalUrlAndUserId(
+    userId: string,
+    originalUrl: string
+  ): Promise<IUrl | null>;
 }

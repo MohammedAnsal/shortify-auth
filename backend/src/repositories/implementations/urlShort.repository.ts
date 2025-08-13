@@ -43,6 +43,41 @@ class UrlRepository implements IUrlRepository {
       return null;
     }
   }
+
+  async findByUserId(userId: string, page: number = 1, limit: number = 5): Promise<{ urls: any[], total: number, totalPages: number, currentPage: number }> {
+    try {
+      const skip = (page - 1) * limit;
+      
+      const [urls, total] = await Promise.all([
+        UrlModel.find({ userId })
+          .sort({ createdAt: -1 })
+          .skip(skip)
+          .limit(limit),
+        UrlModel.countDocuments({ userId })
+      ]);
+
+      const totalPages = Math.ceil(total / limit);
+
+      return {
+        urls,
+        total,
+        totalPages,
+        currentPage: page
+      };
+    } catch (error) {
+      console.error("Repository Error in findByUserId:", error);
+      throw error;
+    }
+  }
+
+  async findByOriginalUrlAndUserId(userId: string, originalUrl: string): Promise<IUrl | null> {
+    try {
+      return await UrlModel.findOne({ userId, originalUrl });
+    } catch (error) {
+      console.error("Repository Error in findByOriginalUrlAndUserId:", error);
+      return null;
+    }
+    }
 }
 
 export const urlRepository = Container.get(UrlRepository);

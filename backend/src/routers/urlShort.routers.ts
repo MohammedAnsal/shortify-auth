@@ -12,11 +12,11 @@ urlRoute.post(
   urlController.shortUrl.bind(urlController)
 );
 
-// urlRoute.get(
-//   "/getAll",
-//   authMiddleware,
-//   authorization,
-//   urlController.findUserUrl.bind(urlController)
-// );
+urlRoute.get(
+  "/getAll",
+  authMiddleware,
+  authorization,
+  urlController.getUserUrls.bind(urlController)
+);
 
 export default urlRoute;

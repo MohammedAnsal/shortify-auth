@@ -6,6 +6,7 @@ import UrlShort from "../pages/client/url/urlShort";
 import { ProtuctedRoute } from "./authRoute/protuctedRoute";
 import { PublicRoute } from "./authRoute/publicRoute";
 import { RootPage } from "./rootPage";
+import UrlHistory from "../components/urlHistory";
 
 export const UserRouter: RouteObject[] = [
   {
@@ -37,6 +38,15 @@ export const UserRouter: RouteObject[] = [
     element: (
       <ProtuctedRoute>
         <UrlShort />
+      </ProtuctedRoute>
+    ),
+  },
+
+  {
+    path: "/url/history",
+    element: (
+      <ProtuctedRoute>
+        <UrlHistory />
       </ProtuctedRoute>
     ),
   },

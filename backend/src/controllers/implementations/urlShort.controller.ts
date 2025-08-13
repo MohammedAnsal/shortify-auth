@@ -82,6 +82,37 @@ class UrlController implements IUrlController {
         .json({ message: responseMessage.ERROR_MESSAGE });
     }
   }
+
+  async getUserUrls(req: AuthRequest, res: Response): Promise<any> {
+    try {
+      const userId = req.user?.id;
+      const page = parseInt(req.query.page as string) || 1;
+      const limit = parseInt(req.query.limit as string) || 5;
+
+      if (!userId) {
+        return res
+          .status(HttpStatus.UNAUTHORIZED)
+          .json({ message: "User not authenticated" });
+      }
+
+      const result = await this.urlService.getUserUrls(userId, page, limit);
+
+      if (!result.status) {
+        return res
+          .status(HttpStatus.BAD_REQUEST)
+          .json({ status: false, message: result.message });
+      }
+
+      return res.status(HttpStatus.OK).json(result);
+    } catch (error: any) {
+      return res
+        .status(HttpStatus.INTERNAL_SERVER_ERROR)
+        .json({ 
+          status: false, 
+          message: error.message || "Internal server error" 
+        });
+    }
+  }
 }
 
 export const urlController = Container.get(UrlController);
