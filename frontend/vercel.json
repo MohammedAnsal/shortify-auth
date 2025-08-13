@@ -2,8 +2,11 @@
   "rewrites": [
     {
       "source": "/:shortUrl",
-      "destination": "https://your-backend.com/:shortUrl"
+      "destination": "https://shortify-auth.duckdns.org/:shortUrl"
     },
-    { "source": "/(.*)", "destination": "/index.html" }
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
   ]
 }
