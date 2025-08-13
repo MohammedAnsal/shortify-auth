@@ -18,21 +18,16 @@ class UrlService implements IUrlService {
     try {
       const { url, userId } = data;
 
-      // Check if the same original URL already exists for this user
       const existingUrl = await this.urlRepository.findByOriginalUrlAndUserId(
         userId,
         url
       );
 
       if (existingUrl) {
-        // Return the existing short URL instead of creating a new one
-        const baseUrl = "https://shortify-auth.vercel.app/";
-        const fullShortUrl = `${baseUrl}${existingUrl.shortUrl}`;
-
         return {
           status: true,
           message: "URL already shortened! Here's your existing short URL.",
-          shortUrl: fullShortUrl,
+          shortUrl: existingUrl.shortUrl,
         };
       }
 
@@ -54,13 +49,13 @@ class UrlService implements IUrlService {
         };
       }
 
-      const baseUrl = "https://shortify-auth.vercel.app/";
-      const fullShortUrl = `${baseUrl}${shortUrl}`;
+      // const baseUrl = "https://shortify-auth.vercel.app/";
+      // const fullShortUrl = `${baseUrl}${shortUrl}`;
 
       return {
         status: true,
         message: responseMessage.SUCCESS_MESSAGE,
-        shortUrl: fullShortUrl,
+        shortUrl: shortUrl,
       };
     } catch (error: any) {
       return {
