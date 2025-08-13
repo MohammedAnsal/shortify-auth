@@ -48,6 +48,7 @@ const UrlShort = () => {
       const response = await short_Url(url);
 
       if (response.status) {
+        console.log(response)
         setShortUrl(response.shortUrl);
       } else {
         setError(response.message || "Something went wrong");

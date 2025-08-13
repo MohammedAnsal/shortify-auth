@@ -33,8 +33,7 @@ class UrlController implements IUrlController {
         userId,
       });
 
-      const baseUrl =
-        process.env.CLIENT_URL || "https://shortify-auth.vercel.app";
+      const baseUrl = "https://shortify-auth.vercel.app/";
       const fullShortUrl = `${baseUrl}${result.shortUrl}`;
 
       return res.status(HttpStatus.OK).json({
