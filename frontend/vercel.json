@@ -1,3 +1,9 @@
 {
-  "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }]
+  "rewrites": [
+    {
+      "source": "/:shortUrl",
+      "destination": "https://your-backend.com/:shortUrl"
+    },
+    { "source": "/(.*)", "destination": "/index.html" }
+  ]
 }
