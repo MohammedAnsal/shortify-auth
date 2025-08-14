@@ -17,6 +17,11 @@ authRouter.post(
   authController.googleSign.bind(authController)
 );
 
+authRouter.post(
+  "/resend-verification",
+  authController.resendVerificationEmail.bind(authController)
+);
+
 authRouter.post("/logout", authController.logout.bind(authController));
 
 export default authRouter;

@@ -34,7 +34,7 @@ export const SignUp = () => {
     try {
       const response = await signUp(data);
 
-      if (response.data.success) {
+      if (response.data) {
         toast.success(response.data.message);
       } else {
         toast.error(response.data.message);

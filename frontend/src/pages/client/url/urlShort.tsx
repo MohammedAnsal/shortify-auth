@@ -48,11 +48,13 @@ const UrlShort = () => {
       const response = await short_Url(url);
 
       if (response.status) {
-        console.log(response);
         setShortUrl(response.shortUrl);
-        
-        // Show the message from the backend
+
         toast.success(response.message);
+        setTimeout(() => {
+          setShortUrl("");
+          setUrl("");
+        }, 3000);
       } else {
         setError(response.message || "Something went wrong");
       }

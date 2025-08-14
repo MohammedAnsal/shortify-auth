@@ -250,6 +250,46 @@ class AuthService implements IAuthService {
       );
     }
   }
+
+  async resendVerificationEmail(email: string): Promise<{ message: string }> {
+    try {
+      const existingUser = await this.userRepository.findByEmail(email);
+
+      if (!existingUser) {
+        throw new AppError(
+          HttpStatus.NOT_FOUND,
+          "User not found. Please register again."
+        );
+      }
+
+      if (existingUser.is_verified) {
+        throw new AppError(
+          HttpStatus.BAD_REQUEST,
+          "Email is already verified. Please login."
+        );
+      }
+
+      // Generate new verification token
+      const verificationToken = generateEmailVerificationToken(email);
+
+      // Send new verification email
+      await sendVerificationEmail({ email, token: verificationToken });
+
+      return {
+        message: "Verification email sent successfully. Please check your inbox.",
+      };
+    } catch (error) {
+      if (error instanceof AppError) {
+        throw error;
+      }
+
+      console.error("Resend Verification Email Error:", error);
+      throw new AppError(
+        HttpStatus.INTERNAL_SERVER_ERROR,
+        responseMessage.ERROR_MESSAGE
+      );
+    }
+  }
 }
 
 export const authService = Container.get(AuthService);

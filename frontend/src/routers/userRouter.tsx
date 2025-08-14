@@ -31,12 +31,16 @@ export const UserRouter: RouteObject[] = [
           </PublicRoute>
         ),
       },
-    ],
-  },
 
-  {
-    path: "/verify-email",
-    element: <VerifyEmail />,
+      {
+        path: "verify-email",
+        element: (
+          <PublicRoute>
+            <VerifyEmail />
+          </PublicRoute>
+        ),
+      },
+    ],
   },
 
   {

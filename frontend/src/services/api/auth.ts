@@ -57,3 +57,12 @@ export const verifyEmail = async (email: string, token: string) => {
   }
 };
 
+export const resendVerificationEmail = async (email: string) => {
+  try {
+    const response = await publicApi.post("/auth/resend-verification", { email });
+    return handleResponse(response.data, "Error in resending verification email");
+  } catch (error) {
+    handleError(error);
+  }
+};
+
