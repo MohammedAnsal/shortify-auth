@@ -48,3 +48,12 @@ export const googleRequest = async (token: string) => {
   }
 };
 
+export const verifyEmail = async (email: string, token: string) => {
+  try {
+    const response = await publicApi.get(`/auth/verify-email?email=${email}&token=${token}`);
+    return handleResponse(response.data, "Error in email verification");
+  } catch (error) {
+    handleError(error);
+  }
+};
+

@@ -1,6 +1,13 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { FaLink, FaRegCopy, FaRegClock, FaRegEye, FaChevronLeft, FaChevronRight } from "react-icons/fa";
+import {
+  FaLink,
+  FaRegCopy,
+  FaRegClock,
+  FaRegEye,
+  FaChevronLeft,
+  FaChevronRight,
+} from "react-icons/fa";
 import { toast } from "sonner";
 import { getAllUrls } from "../services/api/url";
 
@@ -52,7 +59,8 @@ export const UrlHistory = () => {
 
   const handleCopy = async (shortUrl: string, id: string) => {
     try {
-      await navigator.clipboard.writeText(shortUrl);
+      const fullUrl = `https://shortify-auth.vercel.app/${shortUrl}`;
+      await navigator.clipboard.writeText(fullUrl);
       setCopiedId(id);
       toast.success("URL copied to clipboard!");
       setTimeout(() => setCopiedId(null), 2000);
@@ -112,7 +120,9 @@ export const UrlHistory = () => {
           className="text-center"
         >
           <div className="w-12 h-12 border-4 border-teal-400 border-t-transparent rounded-full animate-spin mx-auto mb-3"></div>
-          <h2 className="text-lg font-bold text-gray-700">Loading your URLs...</h2>
+          <h2 className="text-lg font-bold text-gray-700">
+            Loading your URLs...
+          </h2>
         </motion.div>
       </div>
     );
@@ -194,8 +204,12 @@ export const UrlHistory = () => {
                 className="text-center py-8"
               >
                 <div className="text-4xl mb-2">🔗</div>
-                <h3 className="text-lg font-bold text-gray-600 mb-1">No URLs Created Yet</h3>
-                <p className="text-gray-500 text-sm">Start by creating your first shortened URL!</p>
+                <h3 className="text-lg font-bold text-gray-600 mb-1">
+                  No URLs Created Yet
+                </h3>
+                <p className="text-gray-500 text-sm">
+                  Start by creating your first shortened URL!
+                </p>
               </motion.div>
             ) : (
               <div className="space-y-2">
@@ -230,17 +244,19 @@ export const UrlHistory = () => {
                               </div>
                             </div>
                           </div>
-                          
+
                           {/* Short URL */}
                           <div className="ml-8">
                             <div className="bg-gray-50 rounded-md p-2 flex items-center justify-between">
                               <span className="font-mono text-blue-600 text-xs break-all">
-                                {url.shortUrl}
+                                https://shortify-auth.vercel.app/{url.shortUrl}
                               </span>
                               <motion.button
                                 whileHover={{ scale: 1.05 }}
                                 whileTap={{ scale: 0.95 }}
-                                onClick={() => handleCopy(url.shortUrl, url._id)}
+                                onClick={() =>
+                                  handleCopy(url.shortUrl, url._id)
+                                }
                                 className="flex items-center gap-1 px-2 py-1 bg-gradient-to-r from-blue-500 to-teal-400 text-white rounded text-xs font-medium transition-all hover:shadow-sm"
                               >
                                 <FaRegCopy className="text-xs" />
@@ -276,23 +292,25 @@ export const UrlHistory = () => {
               <FaChevronLeft className="text-xs" />
               Previous
             </motion.button>
-            
+
             <div className="flex items-center gap-1">
-              {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-                <motion.button
-                  key={page}
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={() => handlePageChange(page)}
-                  className={`w-8 h-8 rounded-lg font-medium text-sm transition-all ${
-                    currentPage === page
-                      ? "bg-gradient-to-r from-teal-400 to-blue-500 text-white shadow-lg"
-                      : "bg-white/85 backdrop-blur text-gray-700 hover:shadow-md"
-                  }`}
-                >
-                  {page}
-                </motion.button>
-              ))}
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map(
+                (page) => (
+                  <motion.button
+                    key={page}
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={() => handlePageChange(page)}
+                    className={`w-8 h-8 rounded-lg font-medium text-sm transition-all ${
+                      currentPage === page
+                        ? "bg-gradient-to-r from-teal-400 to-blue-500 text-white shadow-lg"
+                        : "bg-white/85 backdrop-blur text-gray-700 hover:shadow-md"
+                    }`}
+                  >
+                    {page}
+                  </motion.button>
+                )
+              )}
             </div>
 
             <motion.button

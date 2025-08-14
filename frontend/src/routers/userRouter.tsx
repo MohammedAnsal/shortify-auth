@@ -2,6 +2,7 @@ import { type RouteObject } from "react-router-dom";
 import { SignUp } from "../pages/client/auth/signUp";
 import { SignIn } from "../pages/client/auth/signIn";
 import { Auth } from "../pages/client/auth/auth";
+import VerifyEmail from "../pages/client/auth/verifyEmail";
 import UrlShort from "../pages/client/url/urlShort";
 import { ProtuctedRoute } from "./authRoute/protuctedRoute";
 import { PublicRoute } from "./authRoute/publicRoute";
@@ -31,6 +32,11 @@ export const UserRouter: RouteObject[] = [
         ),
       },
     ],
+  },
+
+  {
+    path: "/verify-email",
+    element: <VerifyEmail />,
   },
 
   {
