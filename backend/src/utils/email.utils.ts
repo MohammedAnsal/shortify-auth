@@ -23,8 +23,8 @@ export const sendVerificationEmail = async ({
   token,
 }: SendVerificationEmailOptions): Promise<void> => {
   // Update this to use your frontend URL
-  // const link = `https://shortify-auth.vercel.app/verify-email?email=${email}&token=${token}`;
-  const link = `http://localhost:5002/auth/verify-email?email=${email}&token=${token}`;
+  const link = `https://shortify-auth.vercel.app/verify-email?email=${email}&token=${token}`;
+  // const link = `http://localhost:5002/auth/verify-email?email=${email}&token=${token}`;
 
   const mailOptions = {
     from: `"Shortify Auth" <${EMAIL_USER}>`,

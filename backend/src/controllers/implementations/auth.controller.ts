@@ -100,7 +100,6 @@ class AuthController implements IAuthController {
 
       const result = await this.authService.verifyEmail(email, token);
       
-      // Return success response with the result
       return res.status(HttpStatus.OK).json({
         status: true,
         message: result.message,
