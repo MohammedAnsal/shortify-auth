@@ -11,14 +11,16 @@ import { GoogleLogin } from "@react-oauth/google";
 import { useGoogle } from "../../../hooks/useGoogle";
 import { signUp } from "../../../services/api/auth";
 import type { AxiosError } from "axios";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 export const SignUp = () => {
   const { handleGoogleSuccess, handleGoogleError } = useGoogle();
+  const navigate = useNavigate();
 
   const {
     register,
     handleSubmit,
+    reset,
     formState: { errors },
   } = useForm<FormValues>({
     resolver: zodResolver(signUpSchema),
@@ -36,6 +38,8 @@ export const SignUp = () => {
 
       if (response.data) {
         toast.success(response.data.message);
+        reset();
+        navigate("/auth/signIn");
       } else {
         toast.error(response.data.message);
       }

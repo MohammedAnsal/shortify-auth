@@ -7,9 +7,11 @@ import {
   FaRegEye,
   FaChevronLeft,
   FaChevronRight,
+  FaArrowLeft,
 } from "react-icons/fa";
 import { toast } from "sonner";
 import { getAllUrls } from "../services/api/url";
+import { useNavigate } from "react-router-dom";
 
 interface UrlHistoryItem {
   _id: string;
@@ -27,6 +29,8 @@ export const UrlHistory = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [total, setTotal] = useState(0);
+
+  const navigate = useNavigate();
 
   const themeGradient =
     "linear-gradient(135deg, #e0e7ff 0%, #f8fafc 40%, #06beb6 100%, #3b82f6 100%)";
@@ -213,6 +217,14 @@ export const UrlHistory = () => {
               </motion.div>
             ) : (
               <div className="space-y-2">
+                {/* Back Button */}
+                <button
+                  onClick={() => navigate(-1)}
+                  className="flex items-center gap-2 px-3 py-1 bg-gradient-to-r from-blue-500 to-teal-400 text-white rounded-md text-sm font-medium hover:shadow-md transition-all"
+                >
+                  <FaArrowLeft />
+                  Back
+                </button>
                 {urls.map((url) => (
                   <motion.div
                     key={url._id}
