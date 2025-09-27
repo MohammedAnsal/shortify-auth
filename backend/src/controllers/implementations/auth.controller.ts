@@ -99,7 +99,7 @@ class AuthController implements IAuthController {
       }
 
       const result = await this.authService.verifyEmail(email, token);
-      
+
       return res.status(HttpStatus.OK).json({
         status: true,
         message: result.message,
@@ -107,7 +107,6 @@ class AuthController implements IAuthController {
         accessToken: result.accessToken,
         refreshToken: result.refreshToken,
       });
-
     } catch (error: unknown) {
       if (error instanceof Error && error.name === "ZodError") {
         return res.status(HttpStatus.BAD_REQUEST).json({
@@ -182,12 +181,11 @@ class AuthController implements IAuthController {
       }
 
       const result = await this.authService.resendVerificationEmail(email);
-      
+
       return res.status(HttpStatus.OK).json({
         status: true,
         message: result.message,
       });
-
     } catch (error: unknown) {
       if (error instanceof AppError) {
         return res.status(error.statusCode).json({

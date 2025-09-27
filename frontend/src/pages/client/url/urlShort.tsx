@@ -1,67 +1,71 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { useState } from "react";
 import { FaLink, FaRegCopy, FaPowerOff, FaHistory } from "react-icons/fa";
-import { short_Url } from "../../../services/api/url";
-import { userLogout } from "../../../services/api/url";
+import { short_Url, userLogout } from "../../../services/api/url";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { logout } from "../../../redux/slice/userSlice";
+import { useForm } from "react-hook-form";
+import { urlSchema } from "../../../utils/validations/url";
+import { zodResolver } from "@hookform/resolvers/zod";
 
 const themeGradient =
   "linear-gradient(135deg, #e0e7ff 0%, #f8fafc 40%, #06beb6 100%, #3b82f6 100%)";
-
 const flipWords = ["Short & Sweet!", "Shareable!", "Secure!", "Fast!", "Free!"];
 
-const UrlShort = () => {
+type UrlForm = { url: string };
+
+const UrlShort: React.FC = () => {
   const [flipIndex, setFlipIndex] = useState(0);
-  const [url, setUrl] = useState("");
   const [shortUrl, setShortUrl] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
   const [copied, setCopied] = useState(false);
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
-  React.useEffect(() => {
-    const interval = setInterval(() => {
-      setFlipIndex((prev) => (prev + 1) % flipWords.length);
-    }, 1800);
+  useEffect(() => {
+    const interval = setInterval(
+      () => setFlipIndex((p) => (p + 1) % flipWords.length),
+      1800
+    );
     return () => clearInterval(interval);
   }, []);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    setError("");
+  useEffect(() => {
+    if (shortUrl) {
+      const timer = setTimeout(() => {
+        setShortUrl("");
+      }, 5000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [shortUrl]);
+
+  const {
+    register,
+    handleSubmit,
+    trigger,
+    reset,
+    formState: { errors, isSubmitting },
+  } = useForm({
+    resolver: zodResolver(urlSchema),
+    mode: "onChange",
+  });
+
+  const onSubmit = async (data: UrlForm) => {
     setShortUrl("");
     setCopied(false);
-
-    if (url.length < 8) {
-      setError("Please enter a valid URL.");
-      setLoading(false);
-      return;
-    }
-
     try {
-      const response = await short_Url(url);
-
+      const response = await short_Url(data.url);
       if (response.status) {
         setShortUrl(response.shortUrl);
-
         toast.success(response.message);
-        setTimeout(() => {
-          setShortUrl("");
-          setUrl("");
-        }, 3000);
+        setTimeout(() => reset(), 3000);
       } else {
-        setError(response.message || "Something went wrong");
+        toast.error(response.message || "Something went wrong");
       }
-    } catch (err) {
-      setError("Failed to shorten URL");
-    } finally {
-      setLoading(false);
+    } catch {
+      toast.error("Failed to shorten URL");
     }
   };
 
@@ -74,20 +78,15 @@ const UrlShort = () => {
   const handleLogout = async () => {
     try {
       const response = await userLogout();
-
       if (response) {
         toast.success(response.message);
         localStorage.removeItem("access-token");
         dispatch(logout());
         navigate("/");
       }
-    } catch (error) {
-      toast.error("Somthing went wrong");
+    } catch {
+      toast.error("Something went wrong");
     }
-  };
-
-  const handleHistoryRedirect = () => {
-    navigate("/url/history");
   };
 
   return (
@@ -95,7 +94,7 @@ const UrlShort = () => {
       className="min-h-screen flex flex-col items-center justify-center font-sans relative overflow-hidden"
       style={{ background: themeGradient }}
     >
-      {/* Animated background lines */}
+      {/* Animated lines */}
       <div className="absolute inset-0 z-0 pointer-events-none">
         {[...Array(8)].map((_, i) => (
           <motion.div
@@ -114,39 +113,37 @@ const UrlShort = () => {
         ))}
       </div>
 
-      {/* Glassy animated container */}
+      {/* Glass container */}
       <motion.div
         initial={{ opacity: 0, y: 60, scale: 0.95 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
         transition={{ duration: 1, type: "spring", bounce: 0.3 }}
         className="relative z-10 bg-white/85 rounded-3xl shadow-2xl text-center max-w-md w-[90vw] px-6 py-10 backdrop-blur"
       >
+        {/* Top buttons */}
         <div className="absolute top-4 left-4">
-          {/* HISTORY BUTTON */}
           <motion.button
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
-            onClick={handleHistoryRedirect}
-            className="flex items-center gap-2 px-4 py-2 cursor-pointer rounded-full bg-gradient-to-r from-blue-400 to-teal-500 text-white font-semibold shadow hover:shadow-lg transition-all"
-            title="View History"
+            onClick={() => navigate("/url/history")}
+            className="flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-blue-400 to-teal-500 text-white font-semibold shadow hover:shadow-lg transition-all"
           >
-            <FaHistory />
-            History
+            <FaHistory /> History
           </motion.button>
         </div>
-        {/* Top buttons container */}
-        <div className="absolute top-4 right-4 flex items-center gap-2">
-          {/* LOGOUT BUTTON */}
+
+        <div className="absolute top-4 right-4">
           <motion.button
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             onClick={handleLogout}
-            className="flex items-center gap-2 px-4 py-2 cursor-pointer rounded-full bg-gradient-to-r from-red-400 to-pink-500 text-white font-semibold shadow hover:shadow-lg transition-all"
-            title="Logout"
+            className="flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-red-400 to-pink-500 text-white font-semibold shadow hover:shadow-lg transition-all"
           >
             <FaPowerOff />
           </motion.button>
         </div>
+
+        {/* Heading */}
         <motion.div
           initial={{ rotate: -20, scale: 0.7 }}
           animate={{ rotate: 0, scale: 1 }}
@@ -155,11 +152,8 @@ const UrlShort = () => {
         >
           <FaLink size={48} className="text-teal-400" />
         </motion.div>
-        <motion.h1
-          initial={false}
-          animate={{ color: "#222" }}
-          className="text-2xl sm:text-3xl font-extrabold mb-2 flex flex-col items-center"
-        >
+
+        <h1 className="text-2xl sm:text-3xl font-extrabold mb-2 flex flex-col items-center">
           Shorten Your Link&nbsp;
           <span className="inline-block min-w-[120px]">
             <AnimatePresence mode="wait">
@@ -175,54 +169,54 @@ const UrlShort = () => {
               </motion.span>
             </AnimatePresence>
           </span>
-        </motion.h1>
-        <motion.p
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.7, duration: 0.7 }}
-          className="text-base sm:text-lg font-medium text-gray-700 my-5"
-        >
+        </h1>
+
+        <p className="text-base sm:text-lg font-medium text-gray-700 my-5">
           Paste your long URL below and get a short, shareable link instantly!
-        </motion.p>
+        </p>
+
+        {/* ✅ Form */}
         <form
-          onSubmit={handleSubmit}
+          onSubmit={handleSubmit(onSubmit)}
           className="flex flex-col sm:flex-row items-stretch mt-10 gap-3 w-full max-w-md mx-auto mb-4"
         >
-          <div className="flex items-center bg-white rounded-xl shadow px-3 py-2 flex-1 border-2 border-transparent focus-within:border-blue-400 transition">
-            <FaLink className="text-blue-400 text-lg mr-2" />
-            <input
-              type="url"
-              placeholder="Paste your long URL here..."
-              value={url}
-              onChange={(e) => setUrl(e.target.value)}
-              required
-              disabled={loading}
-              className="flex-1 bg-transparent outline-none border-none text-base sm:text-lg font-medium text-gray-800 placeholder-gray-400"
-            />
+          <div className="flex flex-col flex-1">
+            <div className="flex items-center bg-white rounded-xl shadow px-3 py-2 border-2 border-transparent focus-within:border-blue-400 transition">
+              <FaLink className="text-blue-400 text-lg mr-2" />
+              <input
+                type="url"
+                placeholder="Paste your long URL here..."
+                {...register("url")}
+                onChange={(e) => {
+                  register("url").onChange(e);
+                  trigger("url");
+                }}
+                disabled={isSubmitting}
+                className="flex-1 bg-transparent outline-none text-base sm:text-lg font-medium text-gray-800 placeholder-gray-400"
+              />
+            </div>
+            {/* ✅ Error message below input */}
+            {errors.url && (
+              <span className="text-red-500 text-sm mt-1">
+                {errors.url.message}
+              </span>
+            )}
           </div>
+
           <motion.button
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.97 }}
             type="submit"
-            disabled={loading}
-            className="flex items-center gap-2 px-6 py-2 rounded-xl font-bold text-white bg-gradient-to-r from-blue-500 to-teal-400 shadow transition-all min-w-[120px] h-[48px] sm:h-auto"
+            disabled={isSubmitting}
+            className="flex-none flex items-center justify-center gap-2 px-6 py-2 rounded-xl font-bold text-white bg-gradient-to-r from-blue-500 to-teal-400 shadow transition-all min-w-[120px] h-[48px] sm:h-auto"
           >
-            {loading ? "Shortening..." : "Shorten"}
+            {isSubmitting ? "Shortening..." : "Shorten"}
           </motion.button>
         </form>
+
+        {/* ✅ Short URL box */}
         <AnimatePresence>
-          {error && (
-            <motion.div
-              className="bg-red-50 text-red-600 rounded-lg px-4 py-2 mt-2 font-medium"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 20 }}
-              transition={{ duration: 0.4 }}
-            >
-              {error}
-            </motion.div>
-          )}
-          {shortUrl && !error && (
+          {shortUrl && (
             <motion.div
               initial={{ opacity: 0, y: 30, scale: 0.95 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}

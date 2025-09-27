@@ -6,5 +6,10 @@ export interface IUrlService {
   shortUrl(data: RequestUrl): Promise<UrlResponse>;
   getByShortUrl(shortUrl: string): Promise<IUrl | null>;
   incrementVisitCount(shortUrl: string): Promise<any>;
-  getUserUrls(userId: string, page?: number, limit?: number): Promise<any>;
+  getUserUrls(
+    userId: string,
+    page?: number,
+    limit?: number,
+    query?: string
+  ): Promise<any>;
 }

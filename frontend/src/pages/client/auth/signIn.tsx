@@ -5,7 +5,7 @@ import {
   type SignInFormData,
 } from "../../../utils/validations/signIn";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { toast } from "sonner";
 import { signIn } from "../../../services/api/auth";
 import { useDispatch } from "react-redux";
@@ -24,18 +24,12 @@ export const SignIn = () => {
   const {
     register,
     handleSubmit,
+    trigger,
     formState: { errors },
   } = useForm<SignInFormData>({
     resolver: zodResolver(signInSchema),
+    mode: "onChange",
   });
-
-  // Show validation errors
-
-  useEffect(() => {
-    Object.values(errors).forEach((error) => {
-      toast.error(error.message);
-    });
-  }, [errors]);
 
   const onSubmit = async (data: SignInFormData) => {
     setLoading(true);
@@ -179,36 +173,54 @@ export const SignIn = () => {
             marginTop: "0.5rem",
           }}
         >
-          <input
-            type="email"
-            {...register("email")}
-            placeholder="Email"
-            name="email"
-            required
-            style={{
-              padding: "0.8rem 1rem",
-              borderRadius: "0.7rem",
-              border: "1px solid #e0e7ff",
-              fontSize: "1rem",
-              outline: "none",
-              background: "rgba(255,255,255,0.7)",
-            }}
-          />
-          <input
-            {...register("password")}
-            type="password"
-            name="password"
-            placeholder="Password"
-            required
-            style={{
-              padding: "0.8rem 1rem",
-              borderRadius: "0.7rem",
-              border: "1px solid #e0e7ff",
-              fontSize: "1rem",
-              outline: "none",
-              background: "rgba(255,255,255,0.7)",
-            }}
-          />
+          <div>
+            <input
+              type="email"
+              {...register("email")}
+              placeholder="Email"
+              name="email"
+              onChange={(e) => {
+                register("email").onChange(e);
+                trigger("email");
+              }}
+              style={{
+                width: "100%",
+                padding: "0.8rem 1rem",
+                borderRadius: "0.7rem",
+                border: "1px solid #e0e7ff",
+                fontSize: "1rem",
+                outline: "none",
+                background: "rgba(255,255,255,0.7)",
+              }}
+            />
+            {errors.email && (
+              <p className="text-red-500 text-sm">{errors.email.message}</p>
+            )}
+          </div>
+          <div>
+            <input
+              {...register("password")}
+              type="password"
+              name="password"
+              placeholder="Password"
+              onChange={(e) => {
+                register("password").onChange(e);
+                trigger("password");
+              }}
+              style={{
+                width: "100%",
+                padding: "0.8rem 1rem",
+                borderRadius: "0.7rem",
+                border: "1px solid #e0e7ff",
+                fontSize: "1rem",
+                outline: "none",
+                background: "rgba(255,255,255,0.7)",
+              }}
+            />
+            {errors.password && (
+              <p className="text-red-500 text-sm">{errors.password.message}</p>
+            )}
+          </div>
           <button
             type="submit"
             style={{

@@ -10,7 +10,7 @@ import cookieParser from "cookie-parser";
 import cors from "cors";
 import urlRoute from "./routers/urlShort.routers";
 
-dotenv.config();
+dotenv.config({ debug: true });
 dbConnect();
 
 const app = express();

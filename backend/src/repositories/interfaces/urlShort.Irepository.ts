@@ -8,7 +8,8 @@ export interface IUrlRepository {
   findByUserId(
     userId: string,
     page?: number,
-    limit?: number
+    limit?: number,
+    query?: string 
   ): Promise<{
     urls: any[];
     total: number;

@@ -6,7 +6,7 @@ export interface IUrl extends Document {
   shortUrl: string;
   visitCount: number;
   createdAt: Date;
-  expiresAt?: Date;
+  // expiresAt?: Date;
 }
 
 const UrlSchema = new Schema<IUrl>(
@@ -15,10 +15,10 @@ const UrlSchema = new Schema<IUrl>(
     originalUrl: { type: String, required: true },
     shortUrl: { type: String, required: true, unique: true },
     visitCount: { type: Number, default: 0 },
-    expiresAt: {
-      type: Date,
-      index: { expires: 0 },
-    },
+    // expiresAt: {
+    //   type: Date,
+    //   index: { expires: 0 },
+    // },
   },
   { timestamps: true }
 );

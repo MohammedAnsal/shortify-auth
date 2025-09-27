@@ -22,9 +22,16 @@ export const short_Url = async (originalUrl: string) => {
   }
 };
 
-export const getAllUrls = async (page: number = 1, limit: number = 5) => {
+export const getAllUrls = async (
+  page: number = 1,
+  limit: number = 3,
+  search: string = ""
+) => {
+  console.log(search);
   try {
-    const response = await api.get(`/url/getAll?page=${page}&limit=${limit}`);
+    const response = await api.get(
+      `/url/getAll?page=${page}&limit=${limit}&search=${search}`
+    );
     return handleResponse(response.data, "Error in getting all URLs");
   } catch (error) {
     handleError(error);

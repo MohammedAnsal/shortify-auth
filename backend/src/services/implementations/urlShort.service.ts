@@ -96,9 +96,14 @@ class UrlService implements IUrlService {
     }
   }
 
-  async getUserUrls(userId: string, page: number = 1, limit: number = 5) {
+  async getUserUrls(
+    userId: string,
+    page: number = 1,
+    limit: number = 3,
+    search: string = ""
+  ) {
     try {
-      const result = await this.urlRepository.findByUserId(userId, page, limit);
+      const result = await this.urlRepository.findByUserId(userId, page, limit ,search);
       return {
         status: true,
         message: "User URLs fetched successfully",

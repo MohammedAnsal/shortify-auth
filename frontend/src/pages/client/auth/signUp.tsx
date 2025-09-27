@@ -5,7 +5,6 @@ import {
   signUpSchema,
   type FormValues,
 } from "../../../utils/validations/signUp";
-import { useEffect } from "react";
 import { toast } from "sonner";
 import { GoogleLogin } from "@react-oauth/google";
 import { useGoogle } from "../../../hooks/useGoogle";
@@ -21,16 +20,12 @@ export const SignUp = () => {
     register,
     handleSubmit,
     reset,
+    trigger,
     formState: { errors },
   } = useForm<FormValues>({
     resolver: zodResolver(signUpSchema),
+    mode: "onChange",
   });
-
-  useEffect(() => {
-    Object.values(errors).forEach((error) => {
-      toast.error(error?.message);
-    });
-  }, [errors]);
 
   const onSubmit = async (data: FormValues) => {
     try {
@@ -162,48 +157,74 @@ export const SignUp = () => {
             marginTop: "0.5rem",
           }}
         >
-          <input
-            type="text"
-            {...register("fullName")}
-            placeholder="Full Name"
-            required
-            style={{
-              padding: "0.8rem 1rem",
-              borderRadius: "0.7rem",
-              border: "1px solid #e0e7ff",
-              fontSize: "1rem",
-              outline: "none",
-              background: "rgba(255,255,255,0.7)",
-            }}
-          />
-          <input
-            type="email"
-            {...register("email")}
-            placeholder="Email"
-            required
-            style={{
-              padding: "0.8rem 1rem",
-              borderRadius: "0.7rem",
-              border: "1px solid #e0e7ff",
-              fontSize: "1rem",
-              outline: "none",
-              background: "rgba(255,255,255,0.7)",
-            }}
-          />
-          <input
-            type="password"
-            {...register("password")}
-            placeholder="Password"
-            required
-            style={{
-              padding: "0.8rem 1rem",
-              borderRadius: "0.7rem",
-              border: "1px solid #e0e7ff",
-              fontSize: "1rem",
-              outline: "none",
-              background: "rgba(255,255,255,0.7)",
-            }}
-          />
+          <div className="">
+            <input
+              type="text"
+              {...register("fullName")}
+              placeholder="Full Name"
+              onChange={(e) => {
+                register("fullName").onChange(e);
+                trigger("fullName");
+              }}
+              style={{
+                width: "100%",
+                padding: "0.8rem 1rem",
+                borderRadius: "0.7rem",
+                border: "1px solid #e0e7ff",
+                fontSize: "1rem",
+                outline: "none",
+                background: "rgba(255,255,255,0.7)",
+              }}
+            />
+            {errors.fullName && (
+              <p className="text-red-500 text-sm">{errors.fullName.message}</p>
+            )}
+          </div>
+          <div>
+            <input
+              type="email"
+              {...register("email")}
+              placeholder="Email"
+              onChange={(e) => {
+                register("email").onChange(e), trigger("email");
+              }}
+              style={{
+                width: "100%",
+                padding: "0.8rem 1rem",
+                borderRadius: "0.7rem",
+                border: "1px solid #e0e7ff",
+                fontSize: "1rem",
+                outline: "none",
+                background: "rgba(255,255,255,0.7)",
+              }}
+            />
+            {errors.email && (
+              <p className="text-red-500 text-sm">{errors.email.message}</p>
+            )}
+          </div>
+          <div>
+            <input
+              type="password"
+              {...register("password")}
+              placeholder="Password"
+              onChange={(e) => {
+                register("password").onChange(e);
+                trigger("password");
+              }}
+              style={{
+                width: "100%",
+                padding: "0.8rem 1rem",
+                borderRadius: "0.7rem",
+                border: "1px solid #e0e7ff",
+                fontSize: "1rem",
+                outline: "none",
+                background: "rgba(255,255,255,0.7)",
+              }}
+            />
+            {errors.password && (
+              <p className="text-red-500 text-sm">{errors.password.message}</p>
+            )}
+          </div>
           <button
             type="submit"
             style={{

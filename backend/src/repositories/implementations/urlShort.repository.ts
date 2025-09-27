@@ -5,7 +5,6 @@ import { ICreateShortUrlDTO } from "../../dtos/urlShort.dtos";
 
 @Service()
 class UrlRepository implements IUrlRepository {
-
   async shortUrl(data: ICreateShortUrlDTO): Promise<IUrl | null> {
     try {
       const { userId, shortUrl, originalUrl, expiresAt } = data;
@@ -44,16 +43,28 @@ class UrlRepository implements IUrlRepository {
     }
   }
 
-  async findByUserId(userId: string, page: number = 1, limit: number = 5): Promise<{ urls: any[], total: number, totalPages: number, currentPage: number }> {
+  async findByUserId(
+    userId: string,
+    page: number = 1,
+    limit: number = 3,
+    search: string = ""
+  ): Promise<{
+    urls: any[];
+    total: number;
+    totalPages: number;
+    currentPage: number;
+  }> {
     try {
       const skip = (page - 1) * limit;
-      
+
+      const query: any = { userId };
+      if (search) {
+        query.originalUrl = { $regex: search, $options: "i" };
+      }
+
       const [urls, total] = await Promise.all([
-        UrlModel.find({ userId })
-          .sort({ createdAt: -1 })
-          .skip(skip)
-          .limit(limit),
-        UrlModel.countDocuments({ userId })
+        UrlModel.find(query).sort({ createdAt: -1 }).skip(skip).limit(limit),
+        UrlModel.countDocuments(query),
       ]);
 
       const totalPages = Math.ceil(total / limit);
@@ -62,7 +73,7 @@ class UrlRepository implements IUrlRepository {
         urls,
         total,
         totalPages,
-        currentPage: page
+        currentPage: page,
       };
     } catch (error) {
       console.error("Repository Error in findByUserId:", error);
@@ -70,14 +81,17 @@ class UrlRepository implements IUrlRepository {
     }
   }
 
-  async findByOriginalUrlAndUserId(userId: string, originalUrl: string): Promise<IUrl | null> {
+  async findByOriginalUrlAndUserId(
+    userId: string,
+    originalUrl: string
+  ): Promise<IUrl | null> {
     try {
       return await UrlModel.findOne({ userId, originalUrl });
     } catch (error) {
       console.error("Repository Error in findByOriginalUrlAndUserId:", error);
       return null;
     }
-    }
+  }
 }
 
 export const urlRepository = Container.get(UrlRepository);

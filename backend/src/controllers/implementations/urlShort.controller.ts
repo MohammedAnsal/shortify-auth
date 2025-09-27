@@ -87,7 +87,8 @@ class UrlController implements IUrlController {
     try {
       const userId = req.user?.id;
       const page = parseInt(req.query.page as string) || 1;
-      const limit = parseInt(req.query.limit as string) || 5;
+      const limit = parseInt(req.query.limit as string) || 3;
+      const search = (req.query.search as string) || "";
 
       if (!userId) {
         return res
@@ -95,7 +96,12 @@ class UrlController implements IUrlController {
           .json({ message: "User not authenticated" });
       }
 
-      const result = await this.urlService.getUserUrls(userId, page, limit);
+      const result = await this.urlService.getUserUrls(
+        userId,
+        page,
+        limit,
+        search
+      );
 
       if (!result.status) {
         return res
@@ -105,12 +111,10 @@ class UrlController implements IUrlController {
 
       return res.status(HttpStatus.OK).json(result);
     } catch (error: any) {
-      return res
-        .status(HttpStatus.INTERNAL_SERVER_ERROR)
-        .json({ 
-          status: false, 
-          message: error.message || "Internal server error" 
-        });
+      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+        status: false,
+        message: error.message || "Internal server error",
+      });
     }
   }
 }

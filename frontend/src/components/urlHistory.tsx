@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   FaLink,
@@ -12,6 +12,7 @@ import {
 import { toast } from "sonner";
 import { getAllUrls } from "../services/api/url";
 import { useNavigate } from "react-router-dom";
+import debounce from "lodash.debounce";
 
 interface UrlHistoryItem {
   _id: string;
@@ -29,22 +30,18 @@ export const UrlHistory = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [total, setTotal] = useState(0);
+  const [searchQuery, setSearchQuery] = useState("");
 
   const navigate = useNavigate();
 
   const themeGradient =
     "linear-gradient(135deg, #e0e7ff 0%, #f8fafc 40%, #06beb6 100%, #3b82f6 100%)";
 
-  // Fetch user URLs on component mount and page change
-  useEffect(() => {
-    fetchUserUrls(currentPage);
-  }, [currentPage]);
-
-  const fetchUserUrls = async (page: number) => {
+  // Fetch URLs
+  const fetchUserUrls = async (page: number, query: string = "") => {
     try {
       setLoading(true);
-      const response = await getAllUrls(page, 5);
-
+      const response = await getAllUrls(page, 3, query);
       if (response.status) {
         setUrls(response.urls);
         setTotal(response.total);
@@ -61,6 +58,28 @@ export const UrlHistory = () => {
     }
   };
 
+  // Debounced search to reduce API calls
+  const debouncedSearch = useCallback(
+    debounce((query: string) => {
+      fetchUserUrls(1, query);
+    }, 500),
+    []
+  );
+
+  // Trigger search whenever searchQuery changes
+  useEffect(() => {
+    debouncedSearch(searchQuery);
+  }, [searchQuery]);
+
+  // Page change
+  const handlePageChange = (newPage: number) => {
+    if (newPage >= 1 && newPage <= totalPages) {
+      setCurrentPage(newPage);
+      fetchUserUrls(newPage, searchQuery);
+    }
+  };
+
+  // Copy URL
   const handleCopy = async (shortUrl: string, id: string) => {
     try {
       const fullUrl = `https://shortify-auth.vercel.app/${shortUrl}`;
@@ -106,11 +125,10 @@ export const UrlHistory = () => {
     },
   };
 
-  const handlePageChange = (newPage: number) => {
-    if (newPage >= 1 && newPage <= totalPages) {
-      setCurrentPage(newPage);
-    }
-  };
+  // Initial fetch on mount
+  useEffect(() => {
+    fetchUserUrls(currentPage, searchQuery);
+  }, [currentPage]);
 
   if (loading) {
     return (
@@ -180,7 +198,18 @@ export const UrlHistory = () => {
           </p>
         </motion.div>
 
-        {/* Total URL Count - Centered */}
+        {/* Search Input */}
+        <div className="mb-6 max-w-md mx-auto">
+          <input
+            type="text"
+            placeholder="Search your URLs..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full px-4 py-2 rounded-xl border border-gray-300 focus:border-blue-400 outline-none shadow-sm"
+          />
+        </div>
+
+        {/* Total URL Count */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -209,15 +238,14 @@ export const UrlHistory = () => {
               >
                 <div className="text-4xl mb-2">🔗</div>
                 <h3 className="text-lg font-bold text-gray-600 mb-1">
-                  No URLs Created Yet
+                  No URLs Found
                 </h3>
                 <p className="text-gray-500 text-sm">
-                  Start by creating your first shortened URL!
+                  Try creating a new URL or modify your search
                 </p>
               </motion.div>
             ) : (
               <div className="space-y-2">
-                {/* Back Button */}
                 <button
                   onClick={() => navigate(-1)}
                   className="flex items-center gap-2 px-3 py-1 bg-gradient-to-r from-blue-500 to-teal-400 text-white rounded-md text-sm font-medium hover:shadow-md transition-all"
@@ -225,6 +253,7 @@ export const UrlHistory = () => {
                   <FaArrowLeft />
                   Back
                 </button>
+
                 {urls.map((url) => (
                   <motion.div
                     key={url._id}
@@ -234,7 +263,6 @@ export const UrlHistory = () => {
                   >
                     <div className="p-3">
                       <div className="flex items-center justify-between gap-2">
-                        {/* URL Content */}
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2 mb-1">
                             <div className="flex-shrink-0 w-6 h-6 bg-gradient-to-r from-teal-400 to-blue-500 rounded-full flex items-center justify-center">
@@ -257,7 +285,6 @@ export const UrlHistory = () => {
                             </div>
                           </div>
 
-                          {/* Short URL */}
                           <div className="ml-8">
                             <div className="bg-gray-50 rounded-md p-2 flex items-center justify-between">
                               <span className="font-mono text-blue-600 text-xs break-all">
