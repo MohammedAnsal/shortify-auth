@@ -225,6 +225,32 @@ export const SignUp = () => {
               <p className="text-red-500 text-sm">{errors.password.message}</p>
             )}
           </div>
+
+          <div>
+            <input
+              type="password"
+              {...register("confirmPassword")}
+              placeholder="Confirm Password"
+              onChange={(e) => {
+                register("confirmPassword").onChange(e);
+                trigger("confirmPassword");
+              }}
+              style={{
+                width: "100%",
+                padding: "0.8rem 1rem",
+                borderRadius: "0.7rem",
+                border: "1px solid #e0e7ff",
+                fontSize: "1rem",
+                outline: "none",
+                background: "rgba(255,255,255,0.7)",
+              }}
+            />
+            {errors.confirmPassword && (
+              <p className="text-red-500 text-sm">
+                {errors.confirmPassword.message}
+              </p>
+            )}
+          </div>
           <button
             type="submit"
             style={{

@@ -7,7 +7,7 @@ import storage from "redux-persist/lib/storage";
 const persistConfig = {
   key: "root",
   storage,
-  whitelist: ["user"], // Persist user, admin
+  whitelist: ["user"], // Persist user
 };
 
 // Combine all slice reducers into a single root reducer

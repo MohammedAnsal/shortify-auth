@@ -29,7 +29,14 @@ class AuthService implements IAuthService {
 
   async signUp(data: signUpDTO): Promise<AuthResponse> {
     try {
-      const { fullName, email, password } = data;
+      const { fullName, email, password, confirmPassword } = data;
+
+      if (password !== confirmPassword) {
+        throw new AppError(
+          HttpStatus.BAD_REQUEST,
+          "Password and compare password do not match."
+        );
+      }
 
       const existingUser = await this.userRepository.findByEmail(email);
 
@@ -61,7 +68,7 @@ class AuthService implements IAuthService {
       await sendVerificationEmail({ email, token: verificationToken });
 
       return {
-        message: "User created successfully. Please verify your email.",
+        message: "Success! A verification link was sent to your inbox.",
         status: true,
         email: newUser.email,
       };
@@ -276,7 +283,8 @@ class AuthService implements IAuthService {
       await sendVerificationEmail({ email, token: verificationToken });
 
       return {
-        message: "Verification email sent successfully. Please check your inbox.",
+        message:
+          "Verification email sent successfully. Please check your inbox.",
       };
     } catch (error) {
       if (error instanceof AppError) {
